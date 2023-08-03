@@ -5,12 +5,12 @@ After=syslog.target network.target
 [Service]
 Type=forking
 User=#user#
-WorkingDirectory=/usr/share/#name#/work
+WorkingDirectory=/usr/ndp/3.0/#name#/work
 PermissionsStartOnly=true
 ExecStartPre=-/usr/bin/mkdir -p /var/run/#name#
 ExecStartPre=-/usr/bin/chown #user#:#user# /var/run/#name#
-ExecStartPre=-/usr/bin/env bash /usr/share/#name#/bin/service.sh set-firewall
-ExecStart=/usr/share/#name#/bin/service.sh start %i
+ExecStartPre=-/usr/bin/env bash /usr/ndp/3.0/#name#/bin/service.sh set-firewall
+ExecStart=/usr/ndp/3.0/#name#/bin/service.sh start %i
 PIDFile=/var/run/#name#/%i.pid
 
 [Install]

@@ -623,7 +623,7 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
-                        <phase>package</phase>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>

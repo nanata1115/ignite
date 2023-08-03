@@ -74,6 +74,12 @@ do
         IGNITE_LIBS=${IGNITE_LIBS:-}${SEP}${file}/*
     fi
 done
+for file in ${IGNITE_HOME}/libs/optional/*
+do
+    if [ -d ${file} ]; then
+        IGNITE_LIBS=${IGNITE_LIBS:-}${SEP}${file}/*
+    fi
+done
 
 IFS=$SAVEIFS
 

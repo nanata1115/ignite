@@ -20,7 +20,7 @@ setFirewall ()
 
 case $1 in
 	start)
-		/usr/share/#name#/bin/ignite.sh /etc/#name#/$2 & echo $! >> /var/run/#name#/$2.pid
+		/usr/ndp/3.0/#name#/bin/ignite.sh /etc/#name#/$2 & echo $! >> /var/run/#name#/$2.pid
 		;;
 	set-firewall)
 		setFirewall

@@ -97,7 +97,7 @@ prepEnv () {
 # Check that binary archive exists and try to download it from Apache Dist Archive is not
 getBin () {
     set -x
-    IGNITE_VERSION=$(cat rpm/apache-ignite.spec | grep Version: | head -1 | sed -r 's|.*:\s+(.*)|\1|')
+    IGNITE_VERSION="2.15.0"
     BIN_NAME="apache-ignite-${IGNITE_VERSION}-bin.zip"
     binPreparedFlag=false
 
@@ -141,7 +141,7 @@ buildRPM () {
     cp -rfv rpm/apache-ignite.spec ${RPM_WORK_DIR}/SPECS
 
     # Assemble RPM packages
-    rpmbuild -bb -v --define "_topdir ${RPM_WORK_DIR}" ${RPM_WORK_DIR}/SPECS/apache-ignite.spec
+    rpmbuild  --target x86_64-rh-linux -bb -v --define "_topdir ${RPM_WORK_DIR}" ${RPM_WORK_DIR}/SPECS/apache-ignite.spec
 
     # Gather RPMS
     find ${RPM_WORK_DIR} -name "*.rpm" -exec mv -fv {} ${PACKAGING_DIR} \;

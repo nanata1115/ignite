@@ -16,10 +16,10 @@ Version:          2.15.0
 Release:          1
 Summary:          Apache Ignite In-Memory Computing, Database and Caching Platform
 Group:            Development/System
-License:          ASL 2.0
+License:          /usr/ndp/3.0/%{name}/LICENSE
 URL:              https://ignite.apache.org/
 Source:           %{name}-%{version}-bin.zip
-Requires:         java-1.8.0, chkconfig
+Requires:         chkconfig
 Requires(pre):    shadow-utils
 Provides:         %{name}
 AutoReq:          no
@@ -66,7 +66,7 @@ echoUpgradeMessage () {
 }
 
 setPermissions () {
-    chown -R %{user}:%{user} %{_sharedstatedir}/%{name} %{_log}/%{name}
+    chown -R %{user}:%{user} %{_sharedstatedir}/%{name} /var/log/%{name}
 }
 
 case $1 in
@@ -77,14 +77,14 @@ case $1 in
         fi
 
         # Add user for service operation
-        useradd -r -d %{_datadir}/%{name} -s /usr/sbin/nologin %{user}
+        useradd -r -d /home/%{user} -s /bin/bash %{user}
 
         # Change ownership for work and log directories
         setPermissions
 
         # Install alternatives
         # Commented out until ignitesqlline is ready to work from any user
-        #update-alternatives --install %{_bindir}/ignitesqlline ignitesqlline %{_datadir}/%{name}/bin/sqlline.sh 0
+        #update-alternatives --install /usr/bin/ignitesqlline ignitesqlline %{_datadir}/%{name}/bin/sqlline.sh 0
         #update-alternatives --auto ignitesqlline
         #update-alternatives --display ignitesqlline
         ;;
@@ -187,41 +187,32 @@ esac
 #
 
 # Create base directory structure
-mkdir -p %{buildroot}%{_datadir}/%{name}
-mkdir -p %{buildroot}%{_libdir}/%{name}
-mkdir -p %{buildroot}%{_datadir}/doc/%{name}-%{version}/bin
-mkdir -p %{buildroot}%{_log}/%{name}
+mkdir -p %{buildroot}/usr/ndp/3.0/%{name}
+mkdir -p %{buildroot}/var/log/%{name}
 mkdir -p %{buildroot}%{_sharedstatedir}/%{name}
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/system
-mkdir -p %{buildroot}%{_bindir}
+mkdir -p %{buildroot}/etc/systemd/system
+mkdir -p %{buildroot}/usr/bin
 
 # Copy nessessary files and remove *.bat files
-cp -rf benchmarks bin platforms %{buildroot}%{_datadir}/%{name}
-cp -rf docs/* examples %{buildroot}%{_datadir}/doc/%{name}-%{version}
-find %{buildroot}%{_datadir}/%{name}/ -name *.bat -exec rm -rf {} \;
-
-# Copy libs to /usr/lib and map them to IGNITE_HOME
-cp -rf libs/* %{buildroot}%{_libdir}/%{name}
-ln -sf %{_libdir}/%{name} %{buildroot}%{_datadir}/%{name}/libs
-
-# Setup configuration
-cp -rf config %{buildroot}%{_sysconfdir}/%{name}
-ln -sf %{_sysconfdir}/%{name} %{buildroot}%{_datadir}/%{name}/config
+cp -rf * %{buildroot}/usr/ndp/3.0/%{name}
+find %{buildroot}/usr/ndp/3.0/%{name} -name *.bat -exec rm -rf {} \;
 
 # Setup systemctl service
-cp -rf %{_sourcedir}/name.service %{buildroot}%{_sysconfdir}/systemd/system/%{name}@.service
-cp -rf %{_sourcedir}/service.sh %{buildroot}%{_datadir}/%{name}/bin/
-chmod +x %{buildroot}%{_datadir}/%{name}/bin/service.sh
-for file in %{buildroot}%{_sysconfdir}/systemd/system/%{name}@.service %{buildroot}%{_datadir}/%{name}/bin/service.sh
+cp -f %{_sourcedir}/name.service %{buildroot}/etc/systemd/system/%{name}@.service
+cp -rf %{_sourcedir}/service.sh %{buildroot}/usr/ndp/3.0/%{name}/bin/
+chmod +x %{buildroot}/usr/ndp/3.0/%{name}/bin/service.sh
+for file in %{buildroot}/etc/systemd/system/%{name}@.service %{buildroot}/usr/ndp/3.0/%{name}/bin/service.sh
 do
     sed -i -r -e "s|#name#|%{name}|g" \
               -e "s|#user#|%{user}|g" \
         ${file}
+    mv -f ${file}-r /tmp/a.txt
 done
 
+
 # Map work and log directories
-ln -sf %{_sharedstatedir}/%{name} %{buildroot}%{_datadir}/%{name}/work
-ln -sf %{_log}/%{name} %{buildroot}%{_sharedstatedir}/%{name}/log
+ln -sf %{_sharedstatedir}/%{name} %{buildroot}/usr/ndp/3.0/%{name}/work
+ln -sf /var/log/%{name} %{buildroot}%{_sharedstatedir}/%{name}/log
 
 
 %files
@@ -230,29 +221,26 @@ ln -sf %{_log}/%{name} %{buildroot}%{_sharedstatedir}/%{name}/log
 # Package file list check
 #
 
-%dir %{_datadir}/%{name}
-%dir %{_sysconfdir}/%{name}
+%dir /usr/ndp/3.0/%{name}
 %dir %{_sharedstatedir}/%{name}
-%dir %{_log}/%{name}
+%dir /var/log/%{name}
 
-%{_datadir}/%{name}/benchmarks
-%{_datadir}/%{name}/bin
-%{_datadir}/%{name}/config
-%{_datadir}/%{name}/libs
-%{_datadir}/%{name}/platforms
-%{_datadir}/%{name}/work
-%{_datadir}/doc/%{name}-%{version}
-%{_libdir}/%{name}
-%{_sysconfdir}/systemd/system/%{name}@.service
+/usr/ndp/3.0/%{name}/benchmarks
+/usr/ndp/3.0/%{name}/bin
+/usr/ndp/3.0/%{name}/config
+/usr/ndp/3.0/%{name}/libs
+/usr/ndp/3.0/%{name}/platforms
+/usr/ndp/3.0/%{name}/examples
+/usr/ndp/3.0/%{name}/work
+/usr/ndp/3.0/%{name}/docs
+/etc/systemd/system/%{name}@.service
 %{_sharedstatedir}/%{name}/log
 
-%config(noreplace) %{_sysconfdir}/%{name}/*
-
-%doc README.txt
-%doc NOTICE
-%doc RELEASE_NOTES.txt
-%doc MIGRATION_GUIDE.txt
-%license LICENSE
+%doc /usr/ndp/3.0/%{name}/README.txt
+%doc /usr/ndp/3.0/%{name}/NOTICE
+%doc /usr/ndp/3.0/%{name}/RELEASE_NOTES.txt
+%doc /usr/ndp/3.0/%{name}/MIGRATION_GUIDE.txt
+%doc /usr/ndp/3.0/%{name}/LICENSE
 
 
 %changelog
